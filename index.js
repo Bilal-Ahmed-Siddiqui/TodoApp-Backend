@@ -1,17 +1,25 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const TodoRoute = require("./routes/TodoRoute")
+const TodoRoute = require("./routes/TodoRoute");
+require("dotenv").config();
 const app = express();
 
-app.use(express.json())
+localURL = "mongodb://localhost:27017/Backend";
+AtlasURL = `mongodb+srv://bilalahmed:${process.env.DB_PASSWORD}@forteaching.plyfh.mongodb.net/?retryWrites=true&w=majority&appName=forTeaching`;
 
-mongoose.connect("mongodb://localhost:27017/Backend", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
+app.use(express.json());
+
+mongoose
+  .connect(AtlasURL, {
+    // useNewUrlParser: true,
+    // useUnifiedTopology: true,
   })
   .then(() => {
     console.log("database is connected");
-  }).catch((err)=>{console.error("some error", err)})
+  })
+  .catch((err) => {
+    console.error("some error", err);
+  });
 
 app.get("/", (req, res) => {
   // console.log("someone sent a request")
@@ -20,7 +28,7 @@ app.get("/", (req, res) => {
 
 //routes
 
-app.use("/todo", TodoRoute)
+app.use("/todo", TodoRoute);
 
 app.listen(3000, () => {
   console.log("server is running on port 3000");
