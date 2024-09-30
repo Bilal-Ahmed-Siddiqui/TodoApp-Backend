@@ -1,6 +1,6 @@
 const express = require("express");
-const Todo = require("../models/Todo");
 const { body, validationResult } = require("express-validator");
+const Todo = require("../models/Todo");
 const router = express.Router();
 
 //post request
@@ -10,24 +10,19 @@ router.post(
     body("title")
       .isString()
       .isLength({ max: 50 })
-      .withMessage("Title is required"),
+      .withMessage("Title must be string"),
     body("description")
-      .optional()
       .isString()
+      .optional()
       .isLength({ max: 200 })
-      .withMessage(
-        "Description must be a string and cannot exceed 500 characters"
-      ),
+      .withMessage("description must be string, max 10 characters"),
   ],
   async (req, res) => {
-    //express validation check
-    const error = validationResult(req);
-    if (!error.isEmpty()) {
-      return res.status(400).json({ error: error });
-    }
-
-    //end point main logic
     try {
+      const error = validationResult(req);
+      if (!error.isEmpty()) {
+        return res.status(400).json({ error: error });
+      }
       const { title, description } = req.body;
 
       const newTodo = new Todo({
@@ -60,29 +55,25 @@ router.put(
     body("title")
       .optional()
       .isString()
-      .isLength({ min: 50 })
-      .withMessage("Title must be a non-empty string"),
+      .isLength({ max: 50 })
+      .withMessage("title Must be string max 50 letters"),
     body("description")
       .optional()
       .isString()
       .isLength({ max: 200 })
-      .withMessage(
-        "Description must be a string and cannot exceed 500 characters"
-      ),
+      .withMessage("Description Must be string max 200 letters"),
     body("isCompleted")
       .optional()
       .isBoolean()
-      .withMessage("isCompleted must be a boolean"),
+      .withMessage("isCompleted must be boolean"),
   ],
   async (req, res) => {
-    //express validation check
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
-    //end point main logic
     try {
+      const error = validationResult(req);
+      if (!error.isEmpty()) {
+        return res.status(400).json({ error: error });
+      }
+
       const { title, description, isCompleted } = req.body;
       const { id } = req.params;
 
@@ -104,24 +95,20 @@ router.put(
 );
 
 //delete request
-router.delete(
-  "/delete/:id",
-  async (req, res) => {
-    //end point main logic
-    try {
-      const { id } = req.params;
+router.delete("/delete/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
 
-      const deletedTodo = await Todo.findByIdAndDelete(id);
+    const deletedTodo = await Todo.findByIdAndDelete(id);
 
-      if (!deletedTodo) {
-        res.status(404).json({ error: "todo Not Found" });
-      } else {
-        res.status(201).json({ Success: "Todo deleted successfully" });
-      }
-    } catch (error) {
-      res.status(500).json({ error: error.message });
+    if (!deletedTodo) {
+      res.status(404).json({ error: "todo Not Found" });
+    } else {
+      res.status(201).json({ Success: "Todo deleted successfully" });
     }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
-);
+});
 
 module.exports = router;
