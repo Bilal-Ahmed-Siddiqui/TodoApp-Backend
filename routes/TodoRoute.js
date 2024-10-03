@@ -1,11 +1,13 @@
 const express = require("express");
 const { body, validationResult } = require("express-validator");
 const Todo = require("../models/Todo");
+const authMiddleware = require("../middlewares/Auth");
 const router = express.Router();
 
 //post request
 router.post(
   "/create",
+  authMiddleware,
   [
     body("title")
       .isString()
