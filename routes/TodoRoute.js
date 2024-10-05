@@ -30,6 +30,7 @@ router.post(
       const newTodo = new Todo({
         title,
         description,
+        userId: req.userId,
       });
 
       const savedTodo = await newTodo.save();
@@ -41,9 +42,9 @@ router.post(
 );
 
 //get request
-router.get("/", async (req, res) => {
+router.get("/", authMiddleware, async (req, res) => {
   try {
-    const todos = await Todo.find();
+    const todos = await Todo.find({ userId: req.userId });
     res.status(200).json(todos);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -53,6 +54,7 @@ router.get("/", async (req, res) => {
 //update request
 router.put(
   "/update/:id",
+  authMiddleware,
   [
     body("title")
       .optional()
@@ -79,8 +81,8 @@ router.put(
       const { title, description, isCompleted } = req.body;
       const { id } = req.params;
 
-      const updatedTodo = await Todo.findByIdAndUpdate(
-        id,
+      const updatedTodo = await Todo.findOneAndUpdate(
+        {_id: id, userId: req.userId},
         { title, description, isCompleted },
         { new: true }
       );
@@ -97,11 +99,11 @@ router.put(
 );
 
 //delete request
-router.delete("/delete/:id", async (req, res) => {
+router.delete("/delete/:id", authMiddleware ,async (req, res) => {
   try {
     const { id } = req.params;
 
-    const deletedTodo = await Todo.findByIdAndDelete(id);
+    const deletedTodo = await Todo.findOneAndDelete({_id: id, userId: req.userId});
 
     if (!deletedTodo) {
       res.status(404).json({ error: "todo Not Found" });
