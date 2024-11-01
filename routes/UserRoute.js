@@ -45,8 +45,8 @@ router.post(
         email,
         password: hashedPassword,
       });
-      const savedUser = await newUser.save();
-      res.status(201).json(savedUser);
+      await newUser.save();
+      res.status(201).json({ message: "Account Created, Please Log in." });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
@@ -86,6 +86,7 @@ router.post(
   }
 );
 
+//profile picture endpoint
 router.put("/profile", authMiddleware, Upload.single('pfp'), async (req, res) => {
 
   try {
